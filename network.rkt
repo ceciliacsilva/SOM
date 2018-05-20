@@ -93,10 +93,10 @@
   )
 
 (define (1divx_fun max)
-    (for/list ( (x (range 1 max)) )
+    (for/list ( (x (range 1 max 0.001)) )
       (list x (exact->inexact(/ 1 x)))))
 
-(define 1divx (1divx_fun 11))
+(define 1divx (shuffle (1divx_fun 10)))
 
 (define (Dj_calc w_prev input_line)
   (for/list ( (wj (in-list w_prev)) )

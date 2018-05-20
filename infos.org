@@ -1,0 +1,50 @@
+#+TITLE: RNA-TRAB11
+#+AUTHOR: Cecília Carneiro e Silva
+#+DATE: 23/05/2018
+#+OPTIONS: toc:nil 
+#+LATEX_HEADER: \usepackage[margin=2cm]{geometry}
+
+* Redes concorrentes
+
+  O objetivo deste exemplo é construir uma *Rede Neural Competitiva* para formar uma *Look-up table* para a função: y = 1/x. A quantidade de cluster será variada dos exemplos. A entrada é uma lista, em ordem randômica, de pares '(x y) que obedencem a função acima. 
+
+#+BEGIN_SRC shell
+- Entrada: (range 1 10 0.001), 9001 entradas
+'((1 1.0) ... (9.999999999999897 0.10000000000000103)) 
+#+END_SRC
+
+** Considerações
+
+- Pesos iniciais gerados aleatoriamente.
+- Atualização dos pesos:
+
+[[file:images/w-update.png]]
+
+- Parada: quando \Delta w for melhor do que a precisão (1e-10).
+
+*** Testes
+
+#+BEGIN_SRC racket
+;;(define 1divx (shuffle (1divx_fun 10)))
+> (network_som input_list n_output_x radius_max n_iterations_max [n_output_y 1])
+#+END_SRC
+
+** Teste 1
+- Cluster: 10
+- Raio máximo: 5 
+- Iterações-cálculos: 1000
+
+[[file:images/t1-results.png]]
+
+[[file:images/t1-plot.png]]
+
+** Teste 2
+- Cluster: 12
+- Raio máximo: 5 
+- Iterações-cálculos: 1000
+
+[[file:images/t2-results.png]]
+
+[[file:images/t2-plot.png]]
+
+
