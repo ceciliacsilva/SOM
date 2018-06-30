@@ -1,0 +1,9 @@
+#lang racket
+
+(define (transpose xss)
+  (apply map list xss))
+
+(define (log10 x)
+  (/ (log x)
+     (log 10))
+  )

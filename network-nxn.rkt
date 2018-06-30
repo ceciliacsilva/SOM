@@ -3,12 +3,16 @@
 (require plot)
 (plot-new-window? #t)
 
+(require "functions.rkt")
+
+(provide (all-defined-out))
+
 (define (network_som input_list n_output_y n_output_x radius_max n_iterations_calc)
   (let ( (w_begin (weights_begin input_list n_output_y n_output_x))
          (lo 0.1)
          (precision 1e-10)
          (dist radius_max) )
-    (displayln (~a "w_begin: " w_begin))
+    ;;(displayln (~a "w_begin: " w_begin))
 
     (let loop ( (w_prev_iter w_begin)
                 (t 0) )
@@ -43,7 +47,7 @@
       (define stop? (for/and ( (i (in-list error_list)) )
                       (not (> i precision)) ) )
       (cond ( stop?
-              (displayln (~a "T: " t))
+              (displayln (~a "Cycles: " t))
               
               w_new)
             (else
@@ -192,10 +196,3 @@
         ( (> x x_max) x_max)
         ( else x)))
 
-(define (transpose xss)
-  (apply map list xss))
-
-(define (log10 x)
-  (/ (log x)
-     (log 10))
-  )
