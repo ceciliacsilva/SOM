@@ -5,6 +5,24 @@
 (require "network-nxn.rkt")
 (require "functions.rkt")
 
+(define (train_topics topics name n_output_y n_output_x radius_max n_iterations_calc name_simul)
+  (define name_simul_all (string-append "trained/" name_simul "/"))
+
+  (make-directory* name_simul_all)
+  
+  (define-values
+    (data_list data_toTrain_list) (create_input_train))
+
+  (define-values (data_train data_test)
+    (data_list_get_topic topics data_list))
+
+  (define w (network_som data_train n_output_y n_output_x radius_max n_iterations_calc))
+
+  (write_w w name_simul_all name)
+  
+  (save_pict (draw_graphic w data_test) (string-append name_simul_all name) 'png)
+  
+  )
 
 (define (train n_output_y n_output_x radius_max n_iterations_calc name_simul)
 
@@ -23,12 +41,14 @@
          (i (in-naturals 1)) )
 
     ;;(displayln each_data_train)
+
+    (define name_graph (car each_data_train))
+    (define data_toRun (cdr each_data_train))
+    
+    (displayln (~a "Network - " name_graph))
     
     (define w (network_som (cdr each_data_train) n_output_y n_output_x radius_max n_iterations_calc))
     
-    (define name_graph (car each_data_train))
-    (define data_toRun (cdr each_data_train))
-  
     (define toDraw_all
       (for/list ( (country (in-list (cdar data_toTrain_list))) )
         (define country_data (assoc country data_list))
@@ -55,7 +75,9 @@
   ;;(values w
   ;;        (draw_rectangle_list w)
   ;;        toDraw)
-  
+
+  (displayln (~a "Network - All"))
+  (train_topics '(1 2 3 4 5 6 7) "All" n_output_y n_output_x radius_max n_iterations_calc name_simul)
   )
 
 (define (write_w w name_simul_all name_graph)

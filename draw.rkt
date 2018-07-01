@@ -4,8 +4,8 @@
 
 (provide (all-defined-out))
 
-
 (require "network-nxn.rkt")
+(require "functions.rkt")
 
 (define (draw_txt txt [txt_size 25] [txt_color "tomato"])
   (colorize (text txt null txt_size) txt_color)
@@ -29,15 +29,19 @@
 (define (draw_rectangle_list w_list)
   (let ( (width 170)
          (height 100) )
-    (define w_max (apply max (flatten w_list)))
-    (define w_min (apply min (flatten w_list)))
+
+    (define w_list_avg (map (lambda(b) (map (lambda(a) (list_average a)) b)) w_list))
+    ;;(define w_list_avg (map (lambda(a) (list_average a)) w_list))
+    
+    (define w_max (apply max (flatten w_list_avg)))
+    (define w_min (apply min (flatten w_list_avg)))
+    
     (for/list ( (w_line (in-list w_list)) )
       (for/list ( (w (in-list w_line)) )
         (define w_value
-          (match w
-            ( (list w) w )
-            ( _ (error "More than 1 element.") )
-            ) )
+          (list_average w)
+          )
+        
 
         (define w_normalized (+ 0.2 (* 0.8 (/ (- w_value w_min) (- w_max w_min)))))
         

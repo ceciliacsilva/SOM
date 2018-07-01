@@ -17,3 +17,8 @@
                      (function in_l)))
            )
   )
+
+(define (list_average l)
+  (/ (apply + l)
+     (length l))
+  )

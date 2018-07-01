@@ -28,6 +28,34 @@
    data_toTrain_list)
   )
 
+(define (data_list_get_topic topics data_list)
+  (let loop ( (data_list_iter data_list)
+              (accTrain '())
+              (accTest '()) )
+    
+    (cond ( (null? data_list_iter) (values accTrain accTest) )
+          ( else
+            (define values
+              (for/list ( (topic (in-list topics)) )
+                (string->number
+                 (list-ref (car data_list_iter) topic)) ))
+
+            (define values_train (remove* (list #f) values))
+            (define values_test (map (lambda(a) (if a
+                                                    a
+                                                    0.0)) values))
+
+            (define name (caar data_list_iter))
+            
+            (loop (cdr data_list_iter)
+                  (if (= (length values_train)
+                         (length values_test))
+                      (cons values_train accTrain)
+                      accTrain)
+                  (cons (cons name values_test) accTest)) )  )
+    )
+  )
+
 (define (read_input)
   (define data_file "data/data.csv")
   (define name_file "data/names.csv")

@@ -1,6 +1,10 @@
 #lang racket
 
 (require pict)
+
+(provide (all-defined-out))
+
+
 (require "network-nxn.rkt")
 
 (define (draw_txt txt [txt_size 25] [txt_color "tomato"])
@@ -23,16 +27,19 @@
   )
 
 (define (draw_rectangle_list w_list)
-  (let ( (width 150)
-         (height 70) )
+  (let ( (width 170)
+         (height 100) )
     (define w_max (apply max (flatten w_list)))
+    (define w_min (apply min (flatten w_list)))
     (for/list ( (w_line (in-list w_list)) )
       (for/list ( (w (in-list w_line)) )
-        (define w_normalized
+        (define w_value
           (match w
-            ( (list w) (/ w w_max) )
+            ( (list w) w )
             ( _ (error "More than 1 element.") )
             ) )
+
+        (define w_normalized (+ 0.2 (* 0.8 (/ (- w_value w_min) (- w_max w_min)))))
         
         (define color (make-list 3 (exact-round (* w_normalized 255))))
         
@@ -71,7 +78,7 @@
                    (define filter_cluster
                      (lambda(a) (and (equal? (cdr a) (list i j))
                                      (list (car a)
-                                           25
+                                           20
                                            txt_color)
                                      )) )
              
@@ -80,9 +87,13 @@
              
                    (define names_txt
                      (draw_txt_list names))
-             
+
+                   (define names_txt_splited
+                    (group-by (lambda (x) (modulo (index-of names_txt x) 3)) names_txt))
+
+                                
                    (define names_pict
-                     (apply vc-append names_txt))
+                     (apply vc-append (append (list 10) (map (lambda(x) (apply hc-append (append (list 10) x))) names_txt_splited))))
              
                    (if (null? names_pict)
                        rect
@@ -95,4 +106,4 @@
 
 (define (save_pict the_pict name kind)
   (define bm (pict->bitmap the_pict))
-  (send bm save-file name kind))
+  (send bm save-file (string-append name "." (symbol->string kind)) kind))
