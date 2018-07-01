@@ -1,37 +1,66 @@
 #lang racket
 
+(require plot)
+
+(plot-new-window? #t)
+
 (require "input.rkt")
 (require "draw.rkt")
 (require "network-nxn.rkt")
 (require "functions.rkt")
 
-(define (train_topics topics name n_output_y n_output_x radius_max n_iterations_calc name_simul)
+
+(define (train_topics file_data file_names topics name n_output_y n_output_x radius_max n_iterations_calc name_simul [func func_w])
   (define name_simul_all (string-append "trained/" name_simul "/"))
 
   (make-directory* name_simul_all)
   
   (define-values
-    (data_list data_toTrain_list) (create_input_train))
+    (data_list data_toTrain_list) (create_input_train file_data file_names))
 
   (define-values (data_train data_test)
     (data_list_get_topic topics data_list))
 
-  (define w (network_som data_train n_output_y n_output_x radius_max n_iterations_calc))
+  (define w (time (network_som data_train n_output_y n_output_x radius_max n_iterations_calc)))
 
   (write_w w name_simul_all name)
   
-  (save_pict (draw_graphic w data_test) (string-append name_simul_all name) 'png)
-  
+  (func  w data_test name_simul_all name)
   )
 
-(define (train n_output_y n_output_x radius_max n_iterations_calc name_simul)
+(define (func_w  w data_test name_simul_all name)
+  w
+  )
+
+(define (func_plot  w data_test name_simul_all name)
+  (define picture
+    (plot-pict
+     #:width 2000
+     #:height 1000
+     (list
+      (points (map (lambda(x) (take (cdr x) 2)) data_test) #:sym 'fullcircle1 #:color "blue")
+      (map (lambda(x) (map (lambda(w_each) (points (list (take w_each 2)) #:sym 'fullcircle5 #:color "red")) x)) w)
+      
+      )
+     #:x-label "Latitude" #:y-label "Longitude"
+     )
+    )
+
+  (save_pict picture (string-append name_simul_all name) 'png)
+  )
+
+(define (func_save_pict w data_test name_simul_all name)
+  (save_pict (draw_graphic w data_test) (string-append name_simul_all name) 'png)
+  )
+
+(define (train file_data file_names n_all n_output_y n_output_x radius_max n_iterations_calc name_simul)
 
   (define name_simul_all (string-append "trained/" name_simul "/"))
 
   (make-directory* name_simul_all)
   
   (define-values
-    (data_list data_toTrain_list) (create_input_train))
+    (data_list data_toTrain_list) (create_input_train file_data file_names))
 
   (define data_train_list (cdr data_toTrain_list))
 
@@ -47,7 +76,7 @@
     
     (displayln (~a "Network - " name_graph))
     
-    (define w (network_som (cdr each_data_train) n_output_y n_output_x radius_max n_iterations_calc))
+    (define w (time (network_som (cdr each_data_train) n_output_y n_output_x radius_max n_iterations_calc)))
     
     (define toDraw_all
       (for/list ( (country (in-list (cdar data_toTrain_list))) )
@@ -77,7 +106,7 @@
   ;;        toDraw)
 
   (displayln (~a "Network - All"))
-  (train_topics '(1 2 3 4 5 6 7) "All" n_output_y n_output_x radius_max n_iterations_calc name_simul)
+  (train_topics (create_list n_all) "All" n_output_y n_output_x radius_max n_iterations_calc name_simul)
   )
 
 (define (write_w w name_simul_all name_graph)
@@ -85,4 +114,12 @@
     #:exists 'replace
       (lambda(p)
         (displayln w p)))
+  )
+
+(define (read_w filename)
+  (define file_str (file->string filename))
+
+  (call-with-input-string file_str
+                          (lambda(p)
+                            (read p)))
   )

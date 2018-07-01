@@ -9,7 +9,7 @@
 
   (define graphics_files (directory-list name_simul_all))
 
-  (define graphics_images (filter-map (lambda(a) (regexp-match #rx"[a-zA-z0-9]*.png" a)) graphics_files))
+  (define graphics_images (filter-map (lambda(a) (regexp-match #rx"[a-zA-z0-9\\-]*.png" a)) graphics_files))
 
   (define graphics
     (map (lambda(a)

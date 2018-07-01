@@ -22,3 +22,8 @@
   (/ (apply + l)
      (length l))
   )
+
+(define (create_list n)
+  (for/list ( (i (in-range n)) )
+    (+ i 1))
+  )

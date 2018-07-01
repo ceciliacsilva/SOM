@@ -6,8 +6,11 @@
 
 (provide (all-defined-out))
 
-(define (create_input_train)
-  (define-values (names_list data_list) (read_input))
+(define (create_input_train [file_data "data.csv"] [file_names "names.csv"])
+  (define file_data_all (string-append "data/" file_data))
+  (define file_names_all (string-append "data/" file_names))
+  
+  (define-values (names_list data_list) (read_input file_data_all file_names_all))
 
   (define data_list_transpose (transpose data_list))
 
@@ -56,9 +59,9 @@
     )
   )
 
-(define (read_input)
-  (define data_file "data/data.csv")
-  (define name_file "data/names.csv")
+(define (read_input  file_data file_names)
+  (define data_file file_data)
+  (define name_file file_names)
 
   (define names_control
     (call-with-input-file name_file
