@@ -49,6 +49,72 @@
   (save_pict picture (string-append name_simul_all name) 'png)
   )
 
+(define colors '( ((0 0) "red") ((0 1) "Medium Aquamarine") ((0 2) "seagreen") ((0 3) "purple")
+                  ((0 4) "orange") ((0 5) "Black") ((0 6) "deepskyblue") ((0 7) "seagreen")
+                  ((0 8) "magenta") ((0 9) "darkcyan") )  )
+
+(define (func_plot_colors  w data_test name_simul_all name)
+  (define clusters (map (lambda(a) (map (lambda(x) (find_cluster (Dj_calc w x))) a)) w))
+
+  ;;(define cluster_order (sort clusters < #:key cadar))
+
+  ;;(displayln clusters)
+
+  ;;(displayln (car data_test))
+  
+  (define cluster_data
+    (for/list ( (x_input (in-list data_test)) )
+      (cons
+       (find_cluster (Dj_calc w (cdr x_input)))
+       (take (cdr x_input) 2)
+       )
+      ))
+
+  ;;(displayln "oi")
+  
+  (define cluster_data_group
+    (group-by (lambda(x)
+                (index-of (map car colors) (car x))) cluster_data))
+
+  (define cluster_data_group_order
+    (sort cluster_data_group < #:key cadaar))
+  
+  (define picture
+    (plot-pict
+     #:width 2000
+     #:height 1000
+     (list
+      ;;(map (lambda(x) (points (list (take (cdr x) 2)) #:color (cadr (assoc (find_cluster (Dj_calc w (cdr x))) colors)) #:sym 'fullcircle1 )) data_test)
+      ;;(points (map (lambda(x) (take (cdr x) 2)) data_test) #:sym 'fullcircle1 #:color)
+      ;;(map (lambda(x) (map (lambda(w_each) (points (list (take w_each 2)) #:sym 'fullcircle5 #:color "red")) x)) w)
+
+      (for/list ( (x_all (in-list cluster_data_group_order))
+                  (color (in-list colors)) )
+
+        ;;(displayln (car x_all))
+        ;;(define color (cadr (assoc (car x_all) colors)))
+        (points (map cdr x_all) #:color (cadr color) #:sym 'fullcircle1))
+                     
+      (for/list ( (w_line (in-list w)) )
+        (for/list ( (w_each (in-list w_line)) )
+          (define cluster (find_cluster (Dj_calc w w_each)))
+          (define color (cadr (assoc cluster colors)))
+          
+          (define pos (list (take w_each 2)))
+
+          ;;(displayln (~a cluster "   " color "   " pos))
+
+          (points pos #:color color #:sym 'fullcircle8)
+          ))
+          
+      )
+     #:x-label "Latitude" #:y-label "Longitude"
+     )
+    )
+
+  (save_pict picture (string-append name_simul_all name) 'png)
+  )
+
 (define (func_save_pict w data_test name_simul_all name)
   (save_pict (draw_graphic w data_test) (string-append name_simul_all name) 'png)
   )
