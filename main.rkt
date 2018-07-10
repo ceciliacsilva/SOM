@@ -25,7 +25,7 @@
 
   (write_w w name_simul_all name)
   
-  (func  w data_test name_simul_all name)
+  (func w data_test name_simul_all name)
   )
 
 (define (func_w  w data_test name_simul_all name)
@@ -49,11 +49,27 @@
   (save_pict picture (string-append name_simul_all name) 'png)
   )
 
-(define colors '( ((0 0) "red") ((0 1) "Medium Aquamarine") ((0 2) "seagreen") ((0 3) "purple")
-                  ((0 4) "orange") ((0 5) "Black") ((0 6) "deepskyblue") ((0 7) "seagreen")
-                  ((0 8) "magenta") ((0 9) "darkcyan") )  )
+;;(define colors '( ((0 0) "red") ((0 1) "Medium Aquamarine") ((0 2) "seagreen") ((0 3) "purple")
+;;                  ((0 4) "orange") ((0 5) "Black") ((0 6) "deepskyblue") ((0 7) "seagreen")
+;;                  ((0 8) "magenta") ((0 9) "darkcyan") )  )
 
-(define (func_plot_colors  w data_test name_simul_all name)
+(define (make_colors n)
+  (for/list ( (i (in-range n)) )
+    (list
+     (list 0 i)
+     (list (random 256)
+           (random 256)
+           (random 256)) ))
+  )
+
+(define (func_plot_colors  w data_test_all name_simul_all name)
+
+  (define data_test (remove-duplicates data_test_all))
+  
+  (define w_car_len (length (car w)))
+
+  (define colors (make_colors w_car_len))
+  
   (define clusters (map (lambda(a) (map (lambda(x) (find_cluster (Dj_calc w x))) a)) w))
 
   ;;(define cluster_order (sort clusters < #:key cadar))
@@ -78,6 +94,25 @@
 
   (define cluster_data_group_order
     (sort cluster_data_group < #:key cadaar))
+
+  (define maps_dir (string-append name_simul_all "maps/"))
+  
+  (make-directory* maps_dir)
+  
+  (for ( (x_all (in-list cluster_data_group_order))
+         (w_each (in-list (car w)))
+         (i (in-naturals)) )
+    (call-with-output-file (~a maps_dir "cluster" i ".csv")
+      #:exists 'replace
+      (lambda (p)
+        (displayln (~a "latitude,longitude,distancia_media,valor_medio_semana,volume_medio_semana,peso_medio_semana") p)
+
+        (displayln (~a (car w_each) "," (cadr w_each)) p)
+        
+        (for ( (city_all (in-list x_all)) )
+          (displayln (~a (cadr city_all) "," (caddr city_all)) p) )
+        )
+      ))
   
   (define picture
     (plot-pict
