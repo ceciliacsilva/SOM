@@ -9,6 +9,8 @@
 (require "network-nxn.rkt")
 (require "functions.rkt")
 
+(require "html_create2.rkt")
+
 
 (define (train_topics file_data file_names topics name n_output_y n_output_x radius_max n_iterations_calc name_simul [func func_w])
   (define name_simul_all (string-append "trained/" name_simul "/"))
@@ -86,6 +88,11 @@
        )
       ))
 
+
+  ;;(displayln cluster_data)
+
+  ;;(displayln w)
+  
   ;;(displayln "oi")
   
   (define cluster_data_group
@@ -113,6 +120,13 @@
           (displayln (~a (cadr city_all) "," (caddr city_all)) p) )
         )
       ))
+
+  (define colors_rgb (map (lambda(a) (define b (cadr a))
+         (~a "rgb(" (first b) ", " (second b) ", " (third b) ")")
+         ) colors))
+
+
+  (make_html name_simul_all cluster_data_group_order w colors_rgb (~a name ".html"))
   
   (define picture
     (plot-pict
@@ -129,7 +143,9 @@
         ;;(displayln (car x_all))
         ;;(define color (cadr (assoc (car x_all) colors)))
         (points (map cdr x_all) #:color (cadr color) #:sym 'fullcircle1))
-                     
+
+      
+      
       (for/list ( (w_line (in-list w)) )
         (for/list ( (w_each (in-list w_line)) )
           (define cluster (find_cluster (Dj_calc w w_each)))
@@ -207,7 +223,7 @@
   ;;        toDraw)
 
   (displayln (~a "Network - All"))
-  (train_topics (create_list n_all) "All" n_output_y n_output_x radius_max n_iterations_calc name_simul)
+  (train_topics  file_data file_names (create_list n_all) "All" n_output_y n_output_x radius_max n_iterations_calc name_simul func_save_pict)
   )
 
 (define (write_w w name_simul_all name_graph)
